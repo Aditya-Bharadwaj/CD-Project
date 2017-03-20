@@ -122,11 +122,16 @@ def p_expression_binop(t):
 			
 def p_expression_boolean(t):
 		'''
-		boolean_expression : boolean_expression OR boolean_expression
-												 | boolean_expression AND boolean_expression
+		boolean_expression : boolean_expression logop boolean_expression												 
 																 | expression relational expression
 																 | expression'''
 
+def p_logop(t):
+	'''
+			logop : AND
+						| OR
+		'''
+	print(t)
 def p_relational_operator(t):
 		'''
 		relational :    GREATER
