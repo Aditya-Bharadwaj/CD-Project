@@ -1,5 +1,6 @@
 import ply.lex as lex
 import ply.yacc as yacc
+from node import Node, Terminal
 
 reserved = {
 		'int' : 'INT',
@@ -84,6 +85,10 @@ def p_start(t):
 										| IF LPAREN boolean_expression RPAREN LBRACE start RBRACE ELSE LBRACE start RBRACE
 						| statement
 						 '''
+	
+	
+
+
 
 def p_statement_assign(t):
 		'''statement : INT ID EQUALS expression SEMICOL
@@ -92,8 +97,11 @@ def p_statement_assign(t):
 								 '''
 		if(t[1] == 'int' and isinstance(t[4],int)):
 				names[t[2]] = t[4]
+				
 		elif(t[1] == 'float' and isinstance(t[4],float)):
 				names[t[2]] = t[4]
+		t[0] = Node('=', t[2], t[4])
+		print t[0]
 		
 
 def p_reassignment_stmt(t):
@@ -115,16 +123,40 @@ def p_expression_binop(t):
 									| expression TIMES expression
 									| expression DIVIDE expression
 									 '''
-		if t[2] == '+'  : t[0] = t[1] + t[3]
-		elif t[2] == '-': t[0] = t[1] - t[3]
-		elif t[2] == '*': t[0] = t[1] * t[3]
-		elif t[2] == '/': t[0] = t[1] / t[3]
+		if t[2] == '+'  : t[0] = Node(t[2], t[1], t[3])
+		elif t[2] == '-': t[0] = Node(t[2], t[1], t[3])
+		elif t[2] == '*': t[0] = Node(t[2], t[1], t[3])
+		elif t[2] == '/': t[0] = Node(t[2], t[1], t[3])
+		print t[0]
 			
 def p_expression_boolean(t):
 		'''
 		boolean_expression : boolean_expression logop boolean_expression												 
 																 | expression relational expression
 																 | expression'''
+														 
+	  
+		t[0] = Node(t[2], t[1], t[3])
+																 
+
+def p_c(t):
+	'''
+	c : boolean_expression			
+	'''
+	t[0] = Node(None, t[1], None)
+
+def p_d(t):
+	'''
+	d : expression			
+	'''
+	t[0] = Node(None, t[1], None)
+
+def p_logop(t):
+	'''
+	logop : OR 
+				| AND
+	'''
+	t[0] = Node(t[1], None, None)
 
 def p_logop(t):
 	'''
@@ -133,32 +165,36 @@ def p_logop(t):
 		'''
 	print(t)
 def p_relational_operator(t):
-		'''
+ 		'''
 		relational :    GREATER
 							 |    LESSER
 							 |    GE
 							 |    LE
 							 |    NE
 							 |    EE           '''
-		
+		t[0] = Node(t[1], None, None)
 
 def p_expression_uminus(t):
 		'expression : MINUS expression %prec UMINUS'
-		t[0] = -t[2]
+		#t[0] = -t[2]
+		t[0] = Node('-', t[2], None)
 
 def p_expression_group(t):
 		'expression : LPAREN expression RPAREN'
-		t[0] = t[2]
-
+		#t[0] = t[2]
+		t[0] = Node(None, t[2], None)
 def p_expression_number(t):
 		'''expression : INUM
 									| FNUM'''
 		t[0] = t[1]
+		#t[0] = Terminal(t[1])
 
 def p_expression_name(t):
 		'expression : ID'
 		try:
-				t[0] = names[t[1]]
+				#t[0] = names[t[1]]
+				t[0] = Terminal(names[t[1]])
+				print names[t[1]]
 		except LookupError:
 				print("Undefined name '%s'" % t[1])
 				t[0] = 0
@@ -170,7 +206,8 @@ parser = yacc.yacc()
 
 while True:
 		try:
-				s = input('input> ')  # Use raw_input on Python 2
+
+				s = raw_input('input> ')  # Use raw_input on Python 2
 		except EOFError:
 				break
 		parser.parse(s)
