@@ -30,7 +30,6 @@ t_NE            = r'!='
 t_AND           = r'\&\&'
 t_OR            = r'\|\|'
 
-
 # A regular expression rule with some action code
 
 def t_ID(t):
@@ -69,137 +68,219 @@ def t_error(t):
 	print("Illegal character '%s'" % t.value[0])
 	t.lexer.skip(1)
 
-# Build the lexer
-
-
 precedence = (
 	('left','PLUS','MINUS'),
 	('left','TIMES','DIVIDE'),
 	)
 
-# dictionary of names
-names = { }
+#names dict
+names = {}
+
+# Temporary variable
+temp_num = 0
+label_num = 0
 
 def p_init(t):
 	'init : INT MAIN LPAREN RPAREN LBRACE start RBRACE'
 	print("Parse success")
 
 def p_start(t):
-	'''   start : IF LPAREN boolean_expression RPAREN LBRACE start RBRACE start
-						| IF LPAREN boolean_expression RPAREN LBRACE start RBRACE ELSE LBRACE start RBRACE start
+	'''   start : IF LPAREN boolean_expression RPAREN LBRACE print_goto start RBRACE print_label start
+						| IF LPAREN boolean_expression RPAREN LBRACE print_goto start goto_label RBRACE ELSE LBRACE print_label start RBRACE start
 						| statement start
 						| empty
 	'''
 	#print([i for i in t])
 
-def p_empty(p):
-    'empty :'
-    pass
+def p_else(t):
+	'''
+	else_stmt : 
+	'''
+
+
+
+def p_print_goto(t):
+	'''
+		print_goto : empty
+	'''
+	global label_num
+	#print([i for i in t])
+	print("iffalse", t[-3], "goto", "L"+str(label_num)) 
+
+def p_print_goto_label(t):
+	'''
+		goto_label : empty
+	'''
+	global label_num
+	print("goto","L",str(label_num+1))
+
+def p_print_label(t):
+	'''
+		print_label  : empty
+	'''
+	global label_num
+	print("L",str(label_num),":", sep="")
+	label_num = label_num + 1
+
+
+def p_empty(t):
+	'empty :'
+	pass
+	
 
 def p_statement_assign(t):
-	'''statement : INT ID EQUALS expression SEMICOL
-													 | FLOAT ID EQUALS expression SEMICOL
-													 | reassignment_stmt
-													 
-													 '''
-	#if(t[1] == 'int' and isinstance(t[4],int)):
-	#				names[t[2]] = t[4]
-	#elif(t[1] == 'float' and isinstance(t[4],float)):
-			#		names[t[2]] = t[4]
+	'''statement : INT ID eqex SEMICOL
+				   | FLOAT ID eqex SEMICOL
+				   | reassignment_stmt SEMICOL
+				 '''
+
+	#print(t[2], "=", t[3])
+	if len(t) == 5:
+		names[t[2]] = t[3]
+		if not names[t[2]]:
+			names[t[2]] = t[2]
+		if t[3] is not None:
+			print(t[2],"=",t[3])
+
+	global temp_num
+	#print([i for i in t])
+
+		
 	
+
+
+def p_statement_eqex(t):
+	'''eqex : EQUALS expression
+			 | empty
+	'''	
+	#print(t[1])
+	if t[1] == '=':
+		t[0] = t[2]
 
 def p_reassignment_stmt(t):
 	'''
-	reassignment_stmt : ID EQUALS expression SEMICOL    
+	reassignment_stmt : ID eqex    
 	'''
-	#if(t[1]) in names:
-	#				names[t[1]] = t[3]
-	#else:
-	#				raise NameError("This variable " + t[1] + " not defined")
+
+	global temp_num
+	names[t[1]] = t[2]
+	print(t[1],"=",t[2])
+
 
 def p_statement_expr(t):
 	'statement : expression'
-	#print(t[1])
+	t[0] = t[1]	
 
 def p_expression_binop(t):
 	'''expression : expression PLUS expression
 					| expression MINUS expression
 					| expression TIMES expression
 					| expression DIVIDE expression
-															 '''
-	
-			
+								 '''
+	global temp_num
+	t[0] = "t_" + str(temp_num)
+	print(t[0],"=",t[1], t[2], t[3], sep = '')
+	temp_num = temp_num + 1
+
 def p_expression_boolean(t):
 	'''
 	boolean_expression : c logop c                                                 
 								 | c '''
-	#print("p_expr_bool")
-	#if t[2] == '&&' : t[0] = t[1] and t[3]
-	#elif t[2] == '||': t[0] = t[1] or t[3]
-	#print([i for i in t])
+	global temp_num
+	if len(t) > 2:
+		t[0] = "t_" + str(temp_num)
+		print(t[0],"=",t[1], t[2], t[3], sep = '')
+		temp_num = temp_num + 1
 
 def p_c(t):
 	'''
 	c : expression relational expression
 		| expression '''
+	global temp_num
+	if len(t) > 2:
+		t[0] = "t_" + str(temp_num)
+		print(t[0],"=",t[1], t[2], t[3], sep = '')
+		temp_num = temp_num + 1
+
 
 def p_logop(t):
 	'''
 			logop : AND
-									| OR
+					| OR
 	'''
+	t[0] = t[1]
 def p_relational_operator(t):
 	'''
 	relational :    GREATER
-											 |    LESSER
-											 |    GE
-											 |    LE
-											 |    NE
-											 |    EE           '''
+				 |    LESSER
+				 |    GE
+				 |    LE
+				 |    NE
+				 |    EE           '''
+	t[0] = t[1]
 
 def p_expression_group(t):
 	'expression : LPAREN expression RPAREN'
+	t[0] = t[2]
 
 def p_expression_number(t):
 	'''expression : INUM
-															| FNUM'''
+	 | FNUM'''
+	t[0] = str(t[1])
 
 def p_expression_name(t):
 	'expression : ID'
-	#try:
-	#				t[0] = names[t[1]]
-	#except LookupError:
-	#				print("Undefined name '%s'" % t[1])
-	#				t[0] = 0
+	try:
+					t[0] = names[t[1]]
+	except LookupError:
+					print("Undefined name '%s'" % t[1])
+					t[0] = 0
+
 
 def p_error(t):
 	print("Syntax error at '%s'" % t.value)
 
 
-#while True:
-	#try:
-	#	s = input('input> ')  # Use raw_input on Python 2
-	#except EOFError:
-		#break
+
 data = '''
 		int main()
 		{
-			int a = 100;
-			int b = 100;
-			if(a > b){a = 100;}
+			int a;
+			a = a * 1 + 2;
+			int b = 2 / a;
+			if(a > b || b < a)
+			{
+				a = (b * b) + a;
+			}
+			else
+			{
+				b = 100 + a;
+			}
 		}
 		'''
 
 
 lexer = lex.lex()
 lexer.input(data)
+symtab = {}
 while True:
 	tok = lexer.token()
 	if not tok: 
 		break      # No more input
-	print(tok)
+	if not symtab.__contains__(tok.value):
+		symtab[tok.value] = []
+	symtab[tok.value] = symtab[tok.value] + [(tok.type, tok.lineno, tok.lexpos)]
+	#print(tok.type, tok.value, tok.lineno, tok.lexpos)
+
+#for keys,values in symtab.items():
+#	print(keys, values)
+
+print()
+
+
 parser = yacc.yacc()
 parser.parse(data)
 
-print(parser)
+
+print(names)
 
