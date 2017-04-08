@@ -12,16 +12,17 @@ class Node:
 		
 	def __str__(self):
 		#return str(self.op) + str(self.arg1) + str(self.arg2)
-		ret = "Node: op: " + str(self.op) + "| arg1: " + str(self.arg1) + "| arg2: " + str(self.arg2)
+		ret = "Node: {op: " + str(self.op) + ",\narg1: " + str(self.arg1) + ",\narg2: " + str(self.arg2) + "}\n"
 		return ret
 
 
-a = Node("=", "a", "b")
-print a
 
 class Terminal:
 	value = None
 	def __init__(self, value):
 		self.value = value
 	def __str__(self):
-		return str(self.value)
+		return "Terminal: {" + str(self.value) + "}"
+
+a = Node("=", Node("+", Terminal(10), Terminal(11)), Terminal(11))
+print a
