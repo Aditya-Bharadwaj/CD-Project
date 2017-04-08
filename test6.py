@@ -78,9 +78,12 @@ names = {}
 
 # Temporary variable
 temp_num = 0
-label_num = 0
-label_temp = 0
-label_temp2 = 0
+label_num = 0 #if false
+label_temp = 0 # goto 
+label_temp2 = 0 # label
+
+space_temp = 0
+
 def p_init(t):
 	'init : INT MAIN LPAREN RPAREN LBRACE start RBRACE'
 	print("Parse success")
@@ -104,9 +107,11 @@ def p_print_goto(t):
 	'''
 	global label_num
 	global label_temp
+	global space_temp
 	global label_temp2
 	#print([i for i in t])
-	print("ifFalse ", t[-3], "goto", "L"+str(label_num)) 
+	print(" "*space_temp,"ifFalse ", t[-3], "goto", "L"+str(label_num)) 
+	space_temp = space_temp + 1
 	label_num = label_num + 1
 	label_temp = label_temp + 1
 	label_temp2 = label_temp2 + 1
@@ -118,7 +123,7 @@ def p_print_goto_label(t):
 		goto_label : empty
 	'''
 	global label_num
-	print("goto ","L",str(label_num),sep="")
+	print(" "*space_temp,"goto ","L",str(label_num),sep="")
 	label_num = label_num + 1
 
 
@@ -128,15 +133,18 @@ def p_print_label(t):
 	'''
 	global label_num
 	global label_temp
+	global space_temp
 	label_temp = label_temp - 1 
-	print("L",str(label_temp),":", sep="")
+	print(" "*(space_temp-1),"L",str(label_temp),":", sep="")
 
 def p_print_label2(t):
 	'''
 		print_label2 : empty
 	'''
+	global space_temp
 	global label_temp2
-	print("L",str(label_temp2),":", sep="")	
+	print(" "*(space_temp-1),"L",str(label_temp2),":", sep="")	
+	space_temp = space_temp - 1
 	label_temp2 = label_temp2 + 1
 
 
@@ -157,7 +165,7 @@ def p_statement_assign(t):
 		if not names[t[2]]:
 			names[t[2]] = t[2]
 		if t[3] is not None:
-			print(t[2],"=",t[3])
+			print(" "*space_temp,t[2],"=",t[3])
 
 	global temp_num
 	#print([i for i in t])
@@ -181,7 +189,7 @@ def p_reassignment_stmt(t):
 
 	global temp_num
 	names[t[1]] = t[2]
-	print(t[1],"=",t[2])
+	print(" "*space_temp,t[1],"=",t[2])
 
 
 def p_statement_expr(t):
@@ -196,7 +204,7 @@ def p_expression_binop(t):
 								 '''
 	global temp_num
 	t[0] = "t_" + str(temp_num)
-	print(t[0],"=",t[1], t[2], t[3], sep = '')
+	print(" "*space_temp,t[0],"=",t[1], t[2], t[3], sep = '')
 	temp_num = temp_num + 1
 
 def p_expression_boolean(t):
@@ -206,7 +214,7 @@ def p_expression_boolean(t):
 	global temp_num
 	if len(t) > 2:
 		t[0] = "t_" + str(temp_num)
-		print(t[0],"=",t[1], t[2], t[3], sep = '')
+		print(" "*space_temp,t[0],"=",t[1], t[2], t[3], sep = '')
 		temp_num = temp_num + 1
 	else:
 		t[0] = t[1]
@@ -218,7 +226,7 @@ def p_c(t):
 	global temp_num
 	if len(t) > 2:
 		t[0] = "t_" + str(temp_num)
-		print(t[0],"=",t[1], t[2], t[3], sep = '')
+		print(" "*space_temp,t[0],"=",t[1], t[2], t[3], sep = '')
 		temp_num = temp_num + 1
 	else:
 		t[0] = t[1]
@@ -320,5 +328,5 @@ parser = yacc.yacc()
 parser.parse(data)
 
 
-print(names)
+#print(names)
 
