@@ -79,13 +79,14 @@ names = {}
 # Temporary variable
 temp_num = 0
 label_num = 0
-
+label_temp = 0
+label_temp2 = 0
 def p_init(t):
 	'init : INT MAIN LPAREN RPAREN LBRACE start RBRACE'
 	print("Parse success")
 
 def p_start(t):
-	'''   start : IF LPAREN boolean_expression RPAREN LBRACE print_goto start RBRACE goto_label else_stmt print_label  start
+	'''   start : IF LPAREN boolean_expression RPAREN LBRACE print_goto start RBRACE goto_label else_stmt print_label2 start
 						| statement start
 						| empty
 	'''
@@ -97,31 +98,46 @@ def p_else(t):
 				| empty
 	'''
 
-
-
-
 def p_print_goto(t):
 	'''
 		print_goto : empty
 	'''
 	global label_num
+	global label_temp
+	global label_temp2
 	#print([i for i in t])
 	print("ifFalse ", t[-3], "goto", "L"+str(label_num)) 
+	label_num = label_num + 1
+	label_temp = label_temp + 1
+	label_temp2 = label_temp2 + 1
+
+	#label_temp = label_num
 
 def p_print_goto_label(t):
 	'''
 		goto_label : empty
 	'''
 	global label_num
-	print("goto ","L",str(label_num+1),sep="")
+	print("goto ","L",str(label_num),sep="")
+	label_num = label_num + 1
+
 
 def p_print_label(t):
 	'''
 		print_label  : empty
 	'''
 	global label_num
-	print("L",str(label_num),":", sep="")
-	label_num = label_num + 1
+	global label_temp
+	label_temp = label_temp - 1 
+	print("L",str(label_temp),":", sep="")
+
+def p_print_label2(t):
+	'''
+		print_label2 : empty
+	'''
+	global label_temp2
+	print("L",str(label_temp2),":", sep="")	
+	label_temp2 = label_temp2 + 1
 
 
 def p_empty(t):
@@ -192,6 +208,8 @@ def p_expression_boolean(t):
 		t[0] = "t_" + str(temp_num)
 		print(t[0],"=",t[1], t[2], t[3], sep = '')
 		temp_num = temp_num + 1
+	else:
+		t[0] = t[1]
 
 def p_c(t):
 	'''
@@ -202,6 +220,8 @@ def p_c(t):
 		t[0] = "t_" + str(temp_num)
 		print(t[0],"=",t[1], t[2], t[3], sep = '')
 		temp_num = temp_num + 1
+	else:
+		t[0] = t[1]
 
 
 def p_logop(t):
@@ -249,15 +269,32 @@ data = '''
 			int a;
 			a = a * 1 + 2;
 			int b = 2 / a;
-			if(a > b || b < a)
+			if(a > b || b < a) 
 			{
-				a = (b * b) + a;
+				if(a > b) 
+				{
+					if(a < b)
+					{
+						a = 10;
+					}
+					else
+					{
+						b = 10;
+					}
+				}
+				else
+				{
+					a = 10;
+				}
+			
 			}
 			else
 			{
-				b = 100 + a;
+				a = 10;
 			}
+		 
 		}
+
 		'''
 
 
