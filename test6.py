@@ -188,7 +188,11 @@ def p_reassignment_stmt(t):
 	'''
 
 	global temp_num
-	names[t[1]] = t[2]
+	if names.__contains__(t[1]):
+		names[t[1]] = t[2]
+	else:
+		print("Undefined name '%s'" % t[1])
+		raise SyntaxError
 	print(" "*space_temp,t[1],"=",t[2])
 
 
@@ -264,6 +268,7 @@ def p_expression_name(t):
 	except LookupError:
 					print("Undefined name '%s'" % t[1])
 					t[0] = 0
+					raise SyntaxError
 
 
 def p_error(t):
@@ -277,17 +282,19 @@ data = '''
 			int a;
 			a = a * 1 + 2;
 			int b = 2 / a;
+			int c=2;
 			if(a > b || b < a) 
 			{
 				if(a > b) 
 				{
 					if(a < b)
 					{
-						a = 10;
+						c = 10;
 					}
 					else
 					{
-						b = 10;
+						a=2*2;
+						b = a;
 					}
 				}
 				else
@@ -300,7 +307,7 @@ data = '''
 			{
 				a = 10;
 			}
-		 
+		 	int d=5;
 		}
 
 		'''
@@ -328,5 +335,5 @@ parser = yacc.yacc()
 parser.parse(data)
 
 
-#print(names)
+print(names)
 
