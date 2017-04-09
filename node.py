@@ -2,7 +2,6 @@ class Node:
 	arg1 = None
 	arg2 = None
 	op   = None
-	value = None
 
 	def __init__(self, op, arg1, arg2):
 		self.op = op;
@@ -11,7 +10,6 @@ class Node:
 
 		
 	def __str__(self):
-		#return str(self.op) + str(self.arg1) + str(self.arg2)
 		ret = "Node: {op: " + str(self.op) + ",\narg1: " + str(self.arg1) + ",\narg2: " + str(self.arg2) + "}\n"
 		return ret
 
@@ -22,7 +20,16 @@ class Terminal:
 	def __init__(self, value):
 		self.value = value
 	def __str__(self):
-		return "Terminal: {" + str(self.value) + "}"
+		return  str(self.value)
 
-a = Node("=", Node("+", Terminal(10), Terminal(11)), Terminal(11))
-print a
+
+class StackWrapper:
+	classObject = None
+	stackValue = None
+
+	def __init__(self, classObject, stackValue):
+		self.classObject = classObject
+		self.stackValue = stackValue
+
+	def __str__(self):
+		return str(self.classObject)
