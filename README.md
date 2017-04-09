@@ -1,8 +1,8 @@
 # CD-Project - UE14CS351
  **Project Team Members**
-- @Aditya-Bharadwaj - 01FB14ECS011
-- @JazzType - 01FB14ECS017
-- @auk4810 - 01FB14ECS028
+- Aditya Bharadwaj (@Aditya-Bharadwaj) - 01FB14ECS011
+- Akash Kulhalli (@JazzType) - 01FB14ECS017
+- Aniket Udaykumar (@auk4810) - 01FB14ECS028
 
 **Problem Statement**
 > Implement a mini compiler which takes as input a C program and produces as output optimized intermediate code/assembly code. The programming construct to focus : IF and IF-ELSE loop.
